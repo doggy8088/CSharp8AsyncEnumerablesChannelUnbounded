@@ -16,15 +16,13 @@ namespace ChannelUnbounded
             reader.OnRead += async (_, msg) => await buffer.Writer.WriteAsync(msg);
             _ = reader.Start();
 
-            CompleteBufferWhenEventsAreDone();
+            _ = Task.Run(async () =>
+                {
+                    await reader.WaitUntilAllRead();
+                    buffer.Writer.TryComplete();
+                });
 
             return buffer.Reader.ReadAllAsync();
-
-            async void CompleteBufferWhenEventsAreDone()
-            {
-                await reader.WaitUntilAllRead();
-                buffer.Writer.TryComplete();
-            }
         }
 
         static async Task Main(string[] args)

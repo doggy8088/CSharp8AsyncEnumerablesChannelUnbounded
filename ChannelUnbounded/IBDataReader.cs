@@ -18,8 +18,9 @@ namespace IBHistoricalBarDataDumper
             for (int i = 0; i < 20; i++)
             {
                 OnRead(this, i.ToString());
-
-                await Task.Delay((new Random()).Next(40, 1000));
+                var ms = (new Random()).Next(40, 1000);
+                Console.WriteLine("wait for " + ms + " ms.");
+                await Task.Delay(ms);
             }
 
             isCompleted = true;
