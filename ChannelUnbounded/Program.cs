@@ -12,9 +12,7 @@ namespace ChannelUnbounded
         {
             var buffer = Channel.CreateUnbounded<string>();
 
-            var reader = new IBDataReader(buffer.Writer.TryComplete);
-            reader.OnRead += async (_, msg) => await buffer.Writer.WriteAsync(msg);
-            _ = reader.Start();
+            _ = new IBDataReader(buffer.Writer).Start();
 
             return buffer.Reader.ReadAllAsync();
         }

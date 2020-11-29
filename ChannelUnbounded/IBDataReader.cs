@@ -6,18 +6,11 @@ namespace IBHistoricalBarDataDumper
 {
     public class IBDataReader
     {
-        public delegate bool TryComplete(Exception error = null);
-        public delegate void Complete(Exception error = null);
+        private readonly ChannelWriter<string> writer;
 
-        private readonly Complete complete;
-        private readonly TryComplete tryComplete;
-        public IBDataReader(Complete complete)
+        public IBDataReader(ChannelWriter<string> writer)
         {
-            this.complete = complete;
-        }
-        public IBDataReader(TryComplete tryComplete)
-        {
-            this.tryComplete = tryComplete;
+            this.writer = writer;
         }
 
         public event EventHandler<string> OnRead;
@@ -26,13 +19,14 @@ namespace IBHistoricalBarDataDumper
         {
             for (int i = 0; i < 10; i++)
             {
-                OnRead(this, i.ToString());
+                await writer.WriteAsync(i.ToString());
+
                 var ms = (new Random()).Next(40, 1000);
                 Console.WriteLine($"The {i} has been emitted. Wait for {ms} ms.");
                 await Task.Delay(ms);
             }
 
-            tryComplete(new AccessViolationException("OK"));
+            writer.TryComplete();
         }
     }
 }
